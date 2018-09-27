@@ -3,7 +3,6 @@ import { ClientService } from '../../services/client.service';
 import { FlashMessagesService } from 'angular2-flash-messages';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { Client } from '../../models/Client';
-import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-client-details',
@@ -26,12 +25,31 @@ export class ClientDetailsComponent implements OnInit {
   ngOnInit() {
     // Get ID
     this.id = this.route.snapshot.params['id'];
+
+    // Get Client
     this.clientService.getClient(this.id).snapshotChanges().subscribe(action => {
-      this.client = {key: action.key, ...action.payload.val()};
+      this.client = {$key: action.key, ...action.payload.val()};
+      if (!this.client.$key) {
+        console.log('No such client info with this ID');
+      }
+      if (this.client.balance > 0) {
+        this.hasBalance = true;
+      }
     });
   }
 
+  updateBalance() {
+    // Update client
+    this.clientService.updateClient(this.id, this.client);
+    this.flashMessagesService.show('Balance Updated Successfully', {cssClass: 'alert-success', timeout: 3000});
+    this.router.navigate(['/client/' + this.id]);
+  }
+
   onDelete() {
-    console.log('Delete Button Pressed');
+    if (confirm('Want to delete this item?')) {
+      this.clientService.deleteClient(this.id);
+      this.flashMessagesService.show('Client Deleted Successfully', {cssClass: 'alert-success', timeout: 3000});
+      this.router.navigate(['/']);
+    }
   }
 }

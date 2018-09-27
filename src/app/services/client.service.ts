@@ -7,8 +7,8 @@ import { Client } from '../models/Client';
   providedIn: 'root'
 })
 export class ClientService {
-clients: AngularFireList<any>;
-client: AngularFireObject<any>;
+  clients: AngularFireList<any>;
+  client: AngularFireObject<any>;
 
   constructor(public db: AngularFireDatabase) {
     this.clients = this.db.list<Client>('/clients') as AngularFireList<Client[]>;
@@ -25,5 +25,13 @@ client: AngularFireObject<any>;
   getClient(id: string) {
     this.client = this.db.object('/clients/' + id) as AngularFireObject<Client>;
     return this.client;
+  }
+
+  updateClient(id: string, client: Client) {
+    return this.clients.update(id, client);
+  }
+
+  deleteClient(id: string) {
+    return this.clients.remove(id);
   }
 }
